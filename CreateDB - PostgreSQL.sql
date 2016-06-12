@@ -4,30 +4,79 @@
 -- Throughout the script please read comments.
 
 -- In Postgresql, we put the table name inside quotes if there are any special characters such as -.+ in the name.
--- Another use case is to prevent Postgres interpreting UniT as unit.
+-- Another use case is to prevent Postgres interpreting UniT as unit, since SQL is case insensitive.
 -- Create Table "UniT" will create a table called "UniT". To call this table, you need to always use "UniT"
 -- Create Table UniT will create a table called unit.
--- Same concept also works for column naming as well
-
--- Creating unit table
-CREATE TABLE Unit
-    (UnitNo int, Type varchar(2), Config varchar(3), Position int);
-
--- Creating price table
-CREATE TABLE Price
-    (Config varchar(3), StartDate date, EndDate date, Rent int);
-
--- Creating rentals table
-CREATE TABLE Rentals
-    (RentId int, UnitNo int, StartDate date, EndDate date)
-;
+-- Same concept also works for column naming as well.
 
 -- Creating configuration table
-CREATE TABLE Configuration
-    (Name varchar(3), CPU int, Memory int, HD int, Speed int)
-;
+create table configuration
+(
+    config varchar(3) primary key not null,
+    cpu integer,
+    memory integer,
+    hd integer,
+    speed integer
+);
 
--- Insert records to the unit table
+
+-- Creating unit table
+create table unit
+(
+    unitno integer primary key not null,
+    type varchar(2),
+    config varchar(3),
+    position integer,
+    constraint unit_configuration_name_fk
+    foreign key (config)
+    references configuration (config)
+);
+
+-- Creating price table
+create table price
+(
+    config varchar(3),
+    startdate date,
+    enddate date,
+    rent integer,
+    constraint price_configuration_name_fk
+    foreign key (config)
+    references configuration (config)
+);
+
+
+-- Creating rentals table
+create table rentals
+(
+    rentid integer primary key not null,
+    unitno integer,
+    startdate date,
+    enddate date,
+    constraint rentals_unit_unitno_fk
+    foreign key (unitno)
+    references unit (unitno)
+);
+
+
+--region Insert configuration table
+INSERT INTO Configuration
+    (Config, CPU, Memory, HD, Speed)
+VALUES
+    ('XS1', 1, 1, 16, 250),
+    ('XS2', 1, 1, 32, 300),
+    ('S1', 2, 1, 64, 325),
+    ('S2', 2, 2, 64, 375),
+    ('S3', 2, 4, 128, 450),
+    ('M1', 4, 8, 64, 550),
+    ('M2', 4, 8, 64, 650),
+    ('M3', 6, 16, 256, 750),
+    ('M4', 6, 32, 512, 850),
+    ('L1', 8, 64, 1024, 950),
+    ('L2', 12, 128, 2048, 1250)
+;
+--endregion
+
+--region Insert records to the unit table
 INSERT INTO Unit
     (UnitNo, Type, Config, Position)
 VALUES
@@ -362,8 +411,9 @@ VALUES
     (5511, 'L', 'L2', 5),
     (5611, 'L', 'L2', 6)
 ;
+--endregion
 
--- Insert records to the price table
+--region Insert records to the price table
 INSERT INTO Price
     (Config, StartDate, EndDate, Rent)
 VALUES
@@ -500,8 +550,9 @@ VALUES
     ('L1', '2016-03-31', '2016-04-29', 150),
     ('L2', '2016-03-31', '2016-04-29', 155)
 ;
+--endregion
 
--- Insert records to the rentals table
+--region Insert records to the rentals table
 INSERT INTO Rentals
     (RentId, UnitNo, StartDate, EndDate)
 VALUES
@@ -1406,20 +1457,5 @@ VALUES
     (13333,3109, '2016-04-25',NULL),
     (13334,2404, '2016-03-24',NULL)
 ;
+--endregion
 
--- Insert configuration table
-INSERT INTO Configuration
-    (Name, CPU, Memory, HD, Speed)
-VALUES
-    ('XS1', 1, 1, 16, 250),
-    ('XS2', 1, 1, 32, 300),
-    ('S1', 2, 1, 64, 325),
-    ('S2', 2, 2, 64, 375),
-    ('S3', 2, 4, 128, 450),
-    ('M1', 4, 8, 64, 550),
-    ('M2', 4, 8, 64, 650),
-    ('M3', 6, 16, 256, 750),
-    ('M4', 6, 32, 512, 850),
-    ('L1', 8, 64, 1024, 950),
-    ('L2', 12, 128, 2048, 1250)
-;
